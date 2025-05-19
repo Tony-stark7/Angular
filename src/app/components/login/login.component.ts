@@ -1,7 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RagApiService } from '../../../services/rag-api.service';
+import { ToastrService } from 'ngx-toastr';
 
 declare var particlesJS: any; // for using the global particles.js from CDN
 
@@ -14,20 +15,37 @@ declare var particlesJS: any; // for using the global particles.js from CDN
 })
 export class LoginComponent implements OnInit, AfterViewInit {
   loading = false;
+  @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
-    private authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,    private router: Router,
+    private ragApiService: RagApiService,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
-    // Check if we're returning from OAuth callback with a token
-    this.route.queryParams.subscribe(params => {
-      const token = params['token'];
-      if (token) {
-        this.authService.handleCallback(token);
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+
+  uploadPdf(event: any): void {
+    this.loading = true;
+    const file = event.target.files[0];
+    this.ragApiService.uploadPdf(file).subscribe(
+      (response) => {
+        this.router.navigate(['/home']);
+        localStorage.setItem('session_id', response.session_id);
+        this.toastr.success(response.message);
+        this.loading = false;
+      },
+      (error) => {
+        this.toastr.error(`Failed to upload ${file.name}`);
+        this.loading = false;
       }
-    });
+    );
   }
 
   ngAfterViewInit(): void {
@@ -74,19 +92,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
         }
       },
       retina_detect: true
-    });
-  }
-
-  login(): void {
-    this.loading = true;
-    this.authService.getAuthUrl().subscribe({
-      next: (response) => {
-        window.location.href = response.auth_url;
-      },
-      error: (error) => {
-        console.error('Error getting auth URL:', error);
-        this.loading = false;
-      }
     });
   }
 }

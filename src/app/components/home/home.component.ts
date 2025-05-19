@@ -1,57 +1,86 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EmailService } from '../../services/email.service';
-import { AuthService } from '../../services/auth.service';
-import { Email } from '../../models/email';
 import { CommonModule, DatePipe } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
+import { RagApiService } from '../../../services/rag-api.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  emails: Email[] = [];
-  loading = true;
-  error = '';
+  messages: any[] = [];
+  newMessage: any = '';
+  sessionId: string = '';
+  isLoading: boolean = false;
 
-  constructor(
-    private emailService: EmailService,
-    private authService: AuthService,
-    private router: Router
-  ) { }
+  constructor(private router: Router, private ragApiService: RagApiService) { }
 
   ngOnInit(): void {
-    this.fetchEmails();
-  }
-
-  fetchEmails(): void {
-    this.loading = true;
-    this.emailService.getEmails().subscribe({
-      next: (response) => {
-        this.emails = response.emails;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching emails:', error);
-        this.error = 'Failed to load emails. Please try again.';
-        this.loading = false;
-        
-        // If unauthorized, redirect to login
-        if (error.status === 401) {
-          this.authService.logout();
-        }
+    this.messages = [
+      {
+        content: 'Hello! Tara here. What can I assist you with today?',
+        sender: 'bot',
+        timestamp: new Date(new Date().setHours(new Date().getHours() - 1))
       }
+    ];
+  }
+
+  sendMessage(): void {
+    if (this.newMessage.trim() === '') return;
+    this.messages.push({
+      content: this.newMessage,
+      sender: 'user',
+      timestamp: new Date()
     });
+    let message = this.newMessage;
+    this.newMessage = '';
+
+    // Show loading indicator
+    this.isLoading = true;
+    this.scrollToBottom();
+
+    this.sessionId = localStorage.getItem('session_id') || '';
+    this.ragApiService.queryPdf(this.sessionId, message).subscribe(
+      (response: any) => {
+        // Hide loading indicator
+        this.isLoading = false;
+        this.messages.push({
+          content: response.answer,
+          sender: 'Tara',
+          timestamp: new Date()
+        });
+        this.scrollToBottom();
+      },
+      (error: any) => {
+        this.isLoading = false;
+        this.messages.push({
+          content: 'Sorry about that! I ran into a little hiccup. Please try again shortly. – Tara',
+          sender: 'bot',
+          timestamp: new Date()
+        });
+        this.scrollToBottom();
+      }
+    );
   }
 
-  viewEmail(emailId: string): void {
-    this.router.navigate(['/email', emailId]);
+  scrollToBottom(): void {
+    setTimeout(() => {
+      const chatContainer = document.querySelector('.chat-container');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, 100);
   }
 
-  logout(): void {
-    this.authService.logout();
+  formatTime(date: Date): string {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  logOut() {
+    this.router.navigate(['/login']);
+    localStorage.removeItem('token');
   }
 }

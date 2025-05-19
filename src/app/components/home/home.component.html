@@ -1,65 +1,66 @@
-<div class="inbox-wrapper">
+<div class="chat-wrapper">
   <!-- Header -->
-  <header class="inbox-header">
-    <div class="brand">
-      <h1>📨 Inbox Pilot</h1>
+  <div class="header">
+    <div class="header-logo">
+      <i class="material-icons">chat</i>
     </div>
-    <button class="logout-button" (click)="logout()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-      <span>Logout</span>
+    <div class="header-title">
+      <h1>Tara</h1>
+      <p>Online</p>
+    </div>
+    <div class="logout-button" (click)="logOut()">
+      <i class="material-icons">exit_to_app</i>
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="chat-container">
+    <!-- Background decorative elements -->
+    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/message-ZtfodOsPtkRGNGMIuxbbXCpCmaTsfV.png" alt=""
+      class="bg-decoration top-right">
+    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/message-ZtfodOsPtkRGNGMIuxbbXCpCmaTsfV.png" alt=""
+      class="bg-decoration bottom-left">
+
+    <!-- Messages -->
+    <div *ngFor="let message of messages" class="message" [ngClass]="message.sender">
+      <div class="avatar">
+        <i class="material-icons">{{ message.sender === 'user' ? 'person' : 'smart_toy' }}</i>
+      </div>
+      <div>
+        <div class="message-content">
+          {{ message.content }}
+          <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading indicator (typing animation) -->
+    <div *ngIf="isLoading" class="message bot">
+      <div class="avatar">
+        <i class="material-icons">smart_toy</i>
+      </div>
+      <div>
+        <div class="message-content typing-indicator">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Container -->
+  <div class="input-container">
+    <!-- Microphone button -->
+    <button class="mic-button">
+      <i class="material-icons">mic</i>
     </button>
-  </header>
 
-  <!-- Loading State -->
-  <section *ngIf="loading" class="state-container loading">
-    <div class="spinner">
-      <div class="spinner-inner"></div>
-    </div>
-    <p>Loading your emails...</p>
-  </section>
+    <input type="text" [(ngModel)]="newMessage" class="input-field" placeholder="Type your message here..."
+      (keyup.enter)="sendMessage()">
 
-  <!-- Error State -->
-  <section *ngIf="error" class="state-container error">
-    <p>{{ error }}</p>
-  </section>
-
-  <!-- Email List -->
-  <section *ngIf="!loading && !error" class="email-section">
-    <table class="email-table">
-      <thead>
-        <tr>
-          <th>From</th>
-          <th>Subject</th>
-          <th>Preview</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let email of emails; let i = index"
-            class="email-row"
-            [attr.data-index]="i"
-            (click)="viewEmail(email.id)">
-          <td>{{ email.from }}</td>
-          <td>{{ email.subject || '(No Subject)' }}</td>
-          <td>{{ email.snippet }}</td>
-          <td>{{ email.date | date:'medium' }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Empty State -->
-    <div *ngIf="emails.length === 0" class="state-container empty">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-        <path d="M22 7l-10 7L2 7"></path>
-      </svg>
-      <p>No emails found in your inbox.</p>
-    </div>
-  </section>
+    <button class="send-button" [disabled]="isLoading" (click)="sendMessage()">
+      <i class="material-icons">send</i>
+    </button>
+  </div>
 </div>
