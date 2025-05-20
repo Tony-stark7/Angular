@@ -1,49 +1,58 @@
 <div class="chat-wrapper">
   <!-- Header -->
   <div class="header">
-    <div class="header-logo">
-      <i class="material-icons">chat</i>
+    <div class="header-logo" style="background-color: transparent !important; margin-left: 5px;">
+      <img src="assets/icons8-upload-64.png" alt="Tara Logo" style="height: 60px; margin-right: 13px;">
     </div>
     <div class="header-title">
       <h1>Tara</h1>
-      <p>Online</p>
+      <p [style.color]="chatStatus === 'Offline' ? 'red' : 'chartreuse'" style="font-weight: 800 !important;">{{chatStatus}}</p>
     </div>
     <div class="logout-button" (click)="logOut()">
       <i class="material-icons">exit_to_app</i>
     </div>
   </div>
 
-  <!-- Chat Container -->
-  <div class="chat-container">
-    <!-- Background decorative elements -->
-    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/message-ZtfodOsPtkRGNGMIuxbbXCpCmaTsfV.png" alt=""
-      class="bg-decoration top-right">
-    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/message-ZtfodOsPtkRGNGMIuxbbXCpCmaTsfV.png" alt=""
-      class="bg-decoration bottom-left">
-
-    <!-- Messages -->
-    <div *ngFor="let message of messages" class="message" [ngClass]="message.sender">
-      <div class="avatar">
-        <i class="material-icons">{{ message.sender === 'user' ? 'person' : 'smart_toy' }}</i>
-      </div>
-      <div>
-        <div class="message-content">
-          {{ message.content }}
-          <div class="message-time">{{ formatTime(message.timestamp) }}</div>
-        </div>
+  <!-- Chat Container with Watermark -->
+  <div class="chat-container-wrapper">
+    <!-- Fixed Watermark -->
+    <div class="chat-watermark">
+      <div class="watermark-content">
+        <img src="assets/icons8-upload-64.png" alt="Tara Logo" class="watermark-image">
+        <div class="watermark-logo"></div>
       </div>
     </div>
 
-    <!-- Loading indicator (typing animation) -->
-    <div *ngIf="isLoading" class="message bot">
-      <div class="avatar">
-        <i class="material-icons">smart_toy</i>
+    <div class="chat-container">
+      <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/message-ZtfodOsPtkRGNGMIuxbbXCpCmaTsfV.png"
+        alt="" class="bg-decoration top-right">
+      <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/message-ZtfodOsPtkRGNGMIuxbbXCpCmaTsfV.png"
+        alt="" class="bg-decoration bottom-left">
+
+      <!-- Messages -->
+      <div *ngFor="let message of messages" class="message" [ngClass]="message.sender">
+        <div class="avatar">
+          <i class="material-icons">{{ message.sender === 'user' ? 'person' : 'smart_toy' }}</i>
+        </div>
+        <div>
+          <div class="message-content" [ngClass]="{'typing': message.isTyping}">
+            <div [innerHTML]="message.content"></div>
+            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+          </div>
+        </div>
       </div>
-      <div>
-        <div class="message-content typing-indicator">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
+
+      <!-- Loading indicator (typing animation) -->
+      <div *ngIf="isLoading" class="message bot">
+        <div class="avatar">
+          <i class="material-icons">smart_toy</i>
+        </div>
+        <div>
+          <div class="message-content typing-indicator">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
         </div>
       </div>
     </div>

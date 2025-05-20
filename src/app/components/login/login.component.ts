@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.loading = false;
       },
       (error) => {
-        this.toastr.error(`Failed to upload ${file.name}`);
+        this.toastr.error(error);
         this.loading = false;
       }
     );
