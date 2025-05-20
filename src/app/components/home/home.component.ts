@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,18 @@ export class HomeComponent implements OnInit {
   isLoading: boolean = false;
   typingSpeed: number = 10;
   chatStatus: string = 'Online';
+  language: string = 'English';
+  isLanguageDropdownOpen: boolean = false;
+  allLanguages: any = [
+    "English",
+    "Spanish",
+    "Hindi",
+    "Arabic",
+    "French",
+    "German",
+    "Telugu"
+  ];
+
   constructor(
     private router: Router,
     private ragApiService: RagApiService,
@@ -26,6 +38,7 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.sessionId = localStorage.getItem('session_id') || '';
     this.messages = [
       {
         content: 'Hello! Tara here. What can I assist you with today?',
@@ -51,8 +64,18 @@ export class HomeComponent implements OnInit {
     this.newMessage = '';
     this.isLoading = true;
     this.scrollToBottom();
-    this.sessionId = localStorage.getItem('session_id') || '';
-    this.ragApiService.queryPdf(this.sessionId, message).subscribe(
+
+    const payload = {
+      session_id: this.sessionId,
+      question: message,
+      generate_audio: false,
+      language: this.language.toLowerCase()
+    }
+    this.retriveData(payload);
+  }
+
+  retriveData(payload: any) {
+    this.ragApiService.queryPdf(payload).subscribe(
       (response: any) => {
         this.chatStatus = 'Online';
         this.isLoading = false;
@@ -112,6 +135,35 @@ export class HomeComponent implements OnInit {
 
   formatTime(date: Date): string {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+
+  //language dropdown
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: any): void {
+    const dropdown = document.querySelector('.language-dropdown');
+    if (dropdown && !dropdown.contains(event.target)) {
+      this.isLanguageDropdownOpen = false;
+    }
+  }
+
+  toggleLanguageDropdown(): void {
+    this.isLanguageDropdownOpen = !this.isLanguageDropdownOpen;
+  }
+
+  selectLanguage(lang: string): void {
+    this.language = lang;
+    this.newMessage = 'hello'
+    this.messages = [];
+    this.isLoading = true;
+    this.isLanguageDropdownOpen = false;
+    const payload = {
+      session_id: this.sessionId,
+      question: 'hello',
+      generate_audio: false,
+      language: this.language.toLowerCase()
+    }
+    this.retriveData(payload);
   }
 
   logOut() {

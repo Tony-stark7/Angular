@@ -19,15 +19,16 @@ export class RagApiService {
       );
   }
 
-  queryPdf(sessionId: string, question: string, generateAudio: boolean = false): Observable<any> {
+  queryPdf(payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/query`, {
-      session_id: sessionId,
-      question: question,
-      generate_audio: generateAudio
+      session_id: payload.session_id,
+      question: payload.question,
+      generate_audio: payload.generate_audio,
+      language: payload.language
     })
-    .pipe(
-      catchError(this.handleError)
-    );
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   /**
@@ -37,7 +38,7 @@ export class RagApiService {
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred';
-    
+
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
@@ -48,7 +49,7 @@ export class RagApiService {
         `Backend returned code ${error.status}, ` +
         `body was: ${JSON.stringify(error.error)}`
       );
-      
+
       // Check for the specific error structure you're receiving
       if (error.error && error.error.error) {
         // This handles the structure { "error": "Invalid session ID or session expired" }
@@ -84,7 +85,7 @@ export class RagApiService {
         }
       }
     }
-    
+
     // Return an observable with the error message
     return throwError(() => errorMessage);
   }

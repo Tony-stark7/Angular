@@ -1,12 +1,25 @@
 <div class="chat-wrapper">
   <!-- Header -->
   <div class="header">
-    <div class="header-logo" style="background-color: transparent !important; margin-left: 5px;">
+    <div class="header-logo" style="background-color: transparent !important; margin-left: 5px; cursor: pointer;" (click)="logOut()">
       <img src="assets/icons8-upload-64.png" alt="Tara Logo" style="height: 60px; margin-right: 13px;">
     </div>
     <div class="header-title">
       <h1>Tara</h1>
-      <p [style.color]="chatStatus === 'Offline' ? 'red' : 'chartreuse'" style="font-weight: 800 !important;">{{chatStatus}}</p>
+      <p [style.color]="chatStatus === 'Offline' ? 'red' : 'chartreuse'" style="font-weight: 800 !important;">
+        {{chatStatus}}</p>
+    </div>
+    <div class="language-dropdown">
+      <div class="dropdown-toggle" (click)="toggleLanguageDropdown()">
+        <i class="material-icons">language</i>
+        <span style="margin-left: 10px; margin-right: 10px;">{{ language }}</span>
+      </div>
+      <!-- Add the dropdown menu -->
+      <div class="dropdown-menu" *ngIf="isLanguageDropdownOpen">
+        <div class="dropdown-item" *ngFor="let lang of allLanguages" (click)="selectLanguage(lang)">
+          {{ lang }}
+        </div>
+      </div>
     </div>
     <div class="logout-button" (click)="logOut()">
       <i class="material-icons">exit_to_app</i>
