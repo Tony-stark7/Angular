@@ -6,7 +6,7 @@ import { catchError, Observable, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class RagApiService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = 'https://docuquery-1.onrender.com/api';
 
   constructor(private http: HttpClient) { }
 

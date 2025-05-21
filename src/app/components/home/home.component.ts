@@ -153,7 +153,6 @@ export class HomeComponent implements OnInit {
 
   selectLanguage(lang: string): void {
     this.language = lang;
-    this.newMessage = 'hello'
     this.messages = [];
     this.isLoading = true;
     this.isLanguageDropdownOpen = false;
