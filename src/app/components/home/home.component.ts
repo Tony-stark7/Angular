@@ -159,7 +159,6 @@ export class HomeComponent implements OnInit {
     const payload = {
       session_id: this.sessionId,
       question: 'hello',
-      generate_audio: false,
       language: this.language.toLowerCase()
     }
     this.retriveData(payload);

@@ -6,7 +6,7 @@ import { catchError, Observable, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class RagApiService {
-  private apiUrl = 'https://docuquery-1.onrender.com/api';
+  private apiUrl = 'http://127.0.0.1:5000/api';
 
   constructor(private http: HttpClient) { }
 
@@ -23,7 +23,6 @@ export class RagApiService {
     return this.http.post(`${this.apiUrl}/query`, {
       session_id: payload.session_id,
       question: payload.question,
-      generate_audio: payload.generate_audio,
       language: payload.language
     })
       .pipe(
@@ -85,8 +84,6 @@ export class RagApiService {
         }
       }
     }
-
-    // Return an observable with the error message
     return throwError(() => errorMessage);
   }
 }
